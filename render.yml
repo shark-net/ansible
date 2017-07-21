@@ -1,0 +1,42 @@
+---
+- hosts: all
+  remote_user: root
+  
+  
+  tasks:
+
+  - user:
+      name: minecraft
+
+  - file:
+      path: /data/render
+      state: directory
+      owner: minecraft
+      group: minecraft
+
+  - name: Render minecraft server
+    docker_container:
+      name: minecraft-overviewer
+      image: mide/minecraft-overviewer:latest
+      state: started
+      restart: yes
+      detach: false
+      volumes:
+       - /var/games/minecraft/servers/Sharknet/:/home/minecraft/server/:ro
+       - /data/render/:/home/minecraft/render/:rw
+      env:
+        MINECRAFT_VERSION: "1.12"
+    register: result
+
+  - name: Start nginx
+    docker_container:
+      name: nginx-map
+      image: nginx
+      state: started
+      restart: yes
+      volumes:
+       - /data/render:/usr/share/nginx/html:ro
+      env:
+        NGINX_HOST: "sharknet.io"
+      ports:
+       - "80:80"

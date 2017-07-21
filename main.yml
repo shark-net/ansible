@@ -1,0 +1,15 @@
+- hosts: all
+  remote_user: root
+  
+  pre_tasks:
+    - debug:
+        msg: "Starting ansible setup..."
+
+    - debug:
+        msg: "{{ hostvars['sharknet'].ansible_host }}"
+
+
+- include: prep.yml
+- include: swap.yml target="{{ hostvars['sharknet'].ansible_host }}"
+- include: mineos.yml
+

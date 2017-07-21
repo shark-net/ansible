@@ -1,0 +1,33 @@
+---
+- hosts: all
+ # environment:
+ #   PYTHONPATH: "/usr/lib/python2.7/site-packages"
+
+  remote_user: root
+  become: yes
+ 
+  tasks:
+  - name: Start MineOS
+    docker_container:
+      name: mineos
+      image: hexparrot/mineos:node-jessie
+      state: started
+      restart: yes
+      volumes:
+       - /var/games/minecraft:/var/games/minecraft
+      ports:
+       - "8443:8443"
+       - "25565:25565"
+       - "25566:25566"
+       - "25567:25567"
+       - "25568:25568"
+       - "25569:25569"
+       - "25570:25570"
+      env:
+          USER_PASSWORD: PASSWORD123
+
+  - name: copy some minecraft archives
+    copy: src=/root/ansible/minecraft/maps/ dest=/var/games/minecraft/import
+
+  - debug:
+      msg: "MineOS running at: {{ hostvars['sharknet'].ansible_host }}:8443"

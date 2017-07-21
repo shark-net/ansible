@@ -1,0 +1,2 @@
+[dev]
+sharknet ansible_host=IPADDRESSHERE  ansible_connection=ssh  ansible_ssh_private_key_file=/root/ansible/keys/shark

@@ -1,0 +1,50 @@
+---
+- hosts: all
+  environment:
+    PYTHONPATH: "/usr/lib/python2.7/site-packages"
+
+  remote_user: root
+  become: yes
+  tasks:
+
+   - name: install epel
+     yum: state=present name={{ item }} update_cache=yes
+     with_items:
+     - epel-release
+
+   - name: install yum packages
+     yum: state=present name={{ item }} update_cache=yes
+     with_items:
+     - vim
+     - htop
+     - git
+     - yum-utils
+     - python-pip
+     - device-mapper-persistent-data
+     - lvm2
+   
+   - name: install certain python modules for docker
+     pip:
+       name: "{{ item.name }}"
+       state: present
+     with_items:
+     - { name: docker }
+     # - { name: docker-py } 
+
+   - name: Add Docker Repo
+     command: yum-config-manager \ --add-repo \ https://download.docker.com/linux/centos/docker-ce.repo
+
+   - name: install docker
+     yum: state=present name={{ item }} update_cache=yes
+     with_items:
+     - docker-ce
+
+   - name: start docker
+     systemd: state=started name=docker enabled=yes
+
+  # - name: Wait for the Docker server to start
+  #   action: raw docker version
+  #   register: docker_version
+  #   until: docker_version.stdout.find("Client") != -1
+  #   retries: 30
+  #   delay: 10
